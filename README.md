@@ -1,32 +1,44 @@
-### Banco Digital
-O sistema primeiro deve apresentar três opções:
+Aqui está o **README** reformulado de forma mais organizada e clara:  
 
- # Entrar na conta de administrador, solicitando informações do administrador pré-cadastrado.
+---
 
- # Cadastrar um novo cliente.
- 
- # Entrar na conta de cliente, solicitando informações do cliente para entrar.
+# **Banco Digital (CLI)**  
 
+Este é um sistema de banco digital baseado em **linha de comando (CLI)**, que permite a administração de contas bancárias e a realização de transações financeiras.  
 
-## Entrando na conta de administrador, o sistema deve apresentar as seguintes opções:
+## **Funcionalidades**  
 
- # Ativar conta bancária de um cliente. O administrador deve ativar a conta de um cliente já cadastrado para que ele possa começar a fazer movimentações.
- 
- # Exibir todas as contas cadastradas no sistema. Na exibição, deve mostrar o saldo atual de cada conta, quantas transações foram realizadas em cada conta e o valor total depositado no banco.
+### **Menu Principal**  
+Ao iniciar o sistema, o usuário pode escolher entre três opções:  
+1. **Entrar na conta de administrador** → Requer as credenciais do administrador pré-cadastrado.  
+2. **Cadastrar um novo cliente** → Permite o registro de novos clientes no banco.  
+3. **Entrar na conta de cliente** → Requer as credenciais do cliente para acesso.  
 
- # Bloquear, desbloquear ou remover uma conta bancária. Caso uma conta seja bloqueada, um cliente ainda consegue a acessar, mas não conseguirá fazer transações. Caso a conta seja removida, o cliente perderá acesso total a sua conta.
+---
 
- # Sair da conta de administrador.
+### **Funcionalidades do Administrador**  
+Ao entrar como administrador, o sistema disponibiliza as seguintes opções:  
 
+- **Ativar conta bancária de um cliente** → O administrador pode ativar contas de clientes já cadastrados para que possam realizar transações.  
+- **Exibir todas as contas cadastradas** → Exibe informações detalhadas, incluindo:  
+  - Saldo atual de cada conta.  
+  - Número de transações realizadas.  
+  - Valor total depositado no banco.  
+- **Bloquear, desbloquear ou remover uma conta**:  
+  - **Bloquear** → A conta pode ser acessada pelo cliente, mas ele não poderá realizar transações.  
+  - **Desbloquear** → Restaura o acesso total à conta.  
+  - **Remover** → Exclui permanentemente a conta do cliente.  
+- **Sair da conta de administrador** → Retorna ao menu principal.  
 
-## Entrando na conta de cliente, o sistema deve apresentar as seguintes opções:
+---
 
- # Consultar saldo e extrato da conta bancária. O cliente pode visualizar seu saldo atual e quantas transações foram realizadas.
+### **Funcionalidades do Cliente**  
+Ao entrar como cliente, o sistema oferece as seguintes opções:  
 
- # Realizar depósito. O cliente pode adicionar dinheiro à sua conta.
-
- # Realizar saque. O cliente pode retirar dinheiro da sua conta, desde que tenha saldo suficiente.
-
- # Transferir dinheiro para outra conta bancária. O cliente pode transferir um valor para outra conta do sistema.
-
- # Sair da conta de cliente.
+- **Consultar saldo e extrato** → O cliente pode visualizar:  
+  - Saldo atual da conta.  
+  - Histórico de transações realizadas.  
+- **Realizar depósito** → Adicionar dinheiro à conta bancária.  
+- **Realizar saque** → Retirar dinheiro da conta, desde que haja saldo suficiente.  
+- **Transferir dinheiro** → Enviar um valor para outra conta bancária dentro do sistema.  
+- **Sair da conta de cliente** → Retorna ao menu principal.  
