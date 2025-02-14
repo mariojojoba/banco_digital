@@ -4,22 +4,24 @@
 #include <unistd.h>   // Biblioteca para manipulação de chamadas do sistema Unix (Mac e Linux), como sleep().
 #include <string.h>   // Biblioteca para manipulação de strings, com funções como strlen(), strcpy(), strcat(), etc.
 
+#define NCLIENTES 999
+#define NTRANS 999
+
 // Estrutura para representar um cliente de um sistema financeiro
 typedef struct {
-    int id;            // Identificador único do cliente
-    char nome[50];     // Nome do cliente (até 49 caracteres + terminador nulo '\0')
-    char cpf[15];      // CPF no formato "xxxxxxxxxxx" (até 14 caracteres + terminador nulo)
-    char senha[16];    // Senha (até 15 dígitos + terminador nulo)
-    float saldo;       // Saldo da conta
-    char transf[999];  // Histórico de transferências
-    int bloqueado;     // Indicador de conta bloqueada (0 = não bloqueado, 1 = bloqueado)
+    char nome[50];
+    char cpf[15];
+    char senha[15];
+    float saldo;
+    int transacoes;
+    int contaAtiva; // 0 = Inativa, 1 = Ativa
+    int bloqueada;  // 0 = Desbloqueada, 1 = Bloqueada
 } Cliente;
 
 // Estrutura para representar um administrador
 typedef struct {
-    int id;           // Identificador único
-    char nome[50];    // Nome (até 49 caracteres + terminador nulo)
-    char senha[20];   // Senha (até 19 caracteres + terminador nulo)
+    char usuario[20];
+    char senha[20];
 } Administrador;
 
 // Função para limpar o terminal com atraso
@@ -32,24 +34,9 @@ void terminalClear(int clock) {
     #endif
 }
 
-// Inicializa cinco administradores fixos
-void inicializarAdministradores(Administrador admins[]) {
-    admins[0] = (Administrador){1, "Vitoria Sofia", "vitoriaIFMA2025"};
-    admins[1] = (Administrador){2, "Lucas Macario", "macarioIFMA2025"};
-    admins[2] = (Administrador){3, "Mario Felipe", "felipeIFMA2025"};
-    admins[3] = (Administrador){4, "Carlos Eduardo", "eduardoIFMA2025"};
-    admins[4] = (Administrador){5, "Saulo Ferro", "ferroIFMA2025"};
-}
-
-// Inicializa dois clientes
-void inicializarClientes(Cliente clientes[]) {
-    clientes[0] = (Cliente){1, "Eddynara Costa", "90496494082", "12345678910", 0.00, "Nenhuma", 1}; // Bloqueado
-    clientes[1] = (Cliente){2, "Emanuel Costa", "45345244049", "111222333", 0.00, "Nenhuma", 0};   // Não bloqueado
-}
-
 int main() {
     setlocale(LC_ALL, "Portuguese"); // Ajuste para aceitar paramentros de escrita em português
-    Cliente clientes[999]; // Cria um array de clientes
+    Cliente clientes[NCLIENTES]; // Cria um array de clientes
     Administrador admins[5]; // Cria um array de administradores
     int opcao; // Variável de controle do menu
     
