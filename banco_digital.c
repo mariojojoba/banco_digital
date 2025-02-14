@@ -1,86 +1,161 @@
-#include <stdio.h>    // Biblioteca padrão de entrada e saída, usada para funções como printf() e scanf().
-#include <stdlib.h>   // Biblioteca para gerenciamento de memória, controle de processos e conversões.
-#include <locale.h>   // Biblioteca para configurar localizações, como suporte a acentuação e formatos regionais.
-#include <unistd.h>   // Biblioteca para manipulação de chamadas do sistema Unix (Mac e Linux), como sleep().
-#include <string.h>   // Biblioteca para manipulação de strings, com funções como strlen(), strcpy(), strcat(), etc.
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <locale.h>
 
-#define NCLIENTES 999
-#define NTRANS 999
+#define MAXIMO_CLIENTES 5
 
-// Estrutura para representar um cliente de um sistema financeiro
+// Definição da estrutura de Cliente
 typedef struct {
-    char nome[50];
-    char cpf[15];
-    char senha[15];
-    float saldo;
-    int transacoes;
-    int contaAtiva; // 0 = Inativa, 1 = Ativa
-    int bloqueada;  // 0 = Desbloqueada, 1 = Bloqueada
+  char nome[50];
+  char senha[15];
+  float saldo;
+  int transacoes;
+  int contaAtiva; // 0 = Inativa, 1 = Ativa
+  int bloqueada;  // 0 = Desbloqueada, 1 = Bloqueada
 } Cliente;
 
-// Estrutura para representar um administrador
+// Definição da estrutura de Administrador
 typedef struct {
-    char usuario[20];
-    char senha[20];
+  char nome[50];
+  char senha[20];
 } Administrador;
 
-// Função para limpar o terminal com atraso
-void terminalClear(int clock) {
-    sleep(clock + 0.7); // Retarda a limpeza em 7 milésimos de segundo.
-    #ifdef _WIN32 // Detecta se o código está ronado em Windowns e passa o comando de limpeza
-        system("cls"); 
-    #else
-        printf("\033[H\033[J"); // Em sistemas Unix-like (Linux, macOS), usa a sequência ANSI para limpar a tela
-    #endif
-}
+void entrarContaAdministrador(Administrador *adm,Cliente *clientes,int numClientes);
+void ativarContaCliente(Cliente *cliente,int numC);
+//void exibirContas();
+//void bloquearDesbloquearConta();
+//void removerConta();
+void cadastrarCliente(Cliente *clientes, int *numCliente);
+//void entrarContaCliente();
 
 int main() {
-    setlocale(LC_ALL, "Portuguese"); // Ajuste para aceitar paramentros de escrita em português
-    Cliente clientes[NCLIENTES]; // Cria um array de clientes
-    Administrador admins[5]; // Cria um array de administradores
-    int opcao; // Variável de controle do menu
-    
-    inicializarAdministradores(admins);
-    inicializarClientes(clientes);
-  
-    do {
-        printf("\n****** Bem-vindo ao Banco Digital ******\n");
-        printf("1. Login como Cliente\n");
-        printf("2. Criar Conta\n");
-        printf("3. Login como ADM\n");
-        printf("4. Sair\n");
-        printf("Escolha uma opção: ");
+  setlocale(LC_ALL, "Portuguese");
+  Administrador admin = {"adm", "senha123"};  // Administrador pré-cadastrado
+  Cliente clientes[MAXIMO_CLIENTES];
+  int numClientes = 0;
+  int opcao;
 
-        // Condicional para ver se foi digitado apenas números, caso contrário repete o loop 
-        if (scanf("%d", &opcao) != 1) {
-            terminalClear(0);
-            printf("\nEntrada inválida! Digite um número.\n");
-            while (getchar() != '\n');
-            continue;
-        }
+  while (1) {
+      printf("\n----- Banco Digital -----\n");
+      printf("1. Entrar na conta de administrador\n");
+      printf("2. Cadastrar um novo cliente\n");
+      printf("3. Entrar na conta de cliente\n");
+      printf("4. Sair\n");
+      printf("Escolha uma opcao: ");
+      scanf("%d", &opcao);
+      getchar(); // Limpar o buffer de entrada
 
-        switch (opcao) {
-            case 1:
-                terminalClear(0);
-                printf("Função clienteLogin() ainda não implementada.\n");
-                break;
-            case 2:
-                terminalClear(0);
-                printf("Função criarContaCliente() ainda não implementada.\n");
-                break;
-            case 3:
-                terminalClear(0);
-                printf("Função adminLogin() ainda não implementada.\n");
-                break;
-            case 4:
-                printf("Saindo...\n");
-                break;
-            default:
-                printf("Opção inválida! Tente novamente.\n");
-        }
-    } while (opcao != 4);
+      if (opcao == 1) {
+          system("cls");
+          entrarContaAdministrador(&admin, clientes, numClientes);
+      } else if (opcao == 2) {
+          system("cls");
+          cadastrarCliente(clientes, &numClientes);
+      } else if (opcao == 3) {
+          system("cls");
+          //entrarContaCliente();
+          break;
+      } else if (opcao == 4) {
+          break;
+      } else {
+          system("cls");
+          printf("Opcao invalida!\n");
+      }
+  }
 
-    return 0;
+  return 0;
 }
 
+void entrarContaAdministrador(Administrador *adm,Cliente *clientes,int numClientes){
+  char nome[50], senha[20];
+  int t = 1;
+  printf("Digite o nome de usuario: ");
+  fgets(nome, sizeof(nome), stdin);
+  nome[strcspn(nome, "\n")] = 0;  // Remover a quebra de linha
 
+  printf("Digite a senha: ");
+  fgets(senha, sizeof(senha), stdin);
+  senha[strcspn(senha, "\n")] = 0;
+
+  system("cls");
+
+  int opcao;
+  if(strcmp(nome, adm->nome) == 0 && strcmp(senha, adm->senha) == 0){
+    while(t == 1){
+      printf("\n----- Ola %s. Esse e o seu Menu! -----\n", nome);
+      printf("1) Ativa conta do cliente\n");
+      printf("2) Exibir contas\n");
+      printf("3) Bloquear ou desbloquear conta\n");
+      printf("4) Remover conta\n");
+      printf("5) Sair do Administrador\n");
+      printf("Escolha uma opcao: ");
+      scanf("%d", &opcao);
+      switch(opcao){
+        case 1:
+          system("cls");
+          ativarContaCliente(clientes, numClientes);
+          break;
+        case 2:
+          system("cls");
+          //exibirContas();
+          break;
+        case 3:
+          system("cls");
+          //bloquearDesbloquearConta();
+          break;
+        case 4: 
+          system("cls");
+          //removerConta();
+          break;
+        case 5: t = 0; system("cls"); break;
+      }
+    }
+  }else{
+    printf("Nome ou/e senha incorreto(s)!\n");
+  }
+  return;
+}
+
+void ativarContaCliente(Cliente *cliente,int numeroClientes){
+  char senha[15];
+  printf("Digite o senha do cliente para ativar a conta: ");
+  fgets(senha, sizeof(senha), stdin);
+  senha[strcspn(senha, "\n")] = 0;  // Remover a quebra de linha
+
+  for (int i = 0; i < numeroClientes; i++) {
+      if (strcmp(cliente[i].senha, senha) == 0) {
+          cliente[i].contaAtiva = 1;
+          printf("Conta de %s ativada com sucesso!\n", cliente[i].nome);
+          return;
+      }
+  }
+  system("cls");
+  printf("Cliente nao encontrado ou nao existe!\n");
+
+  return;
+}
+
+void cadastrarCliente(Cliente *clientes, int *numeroClientes){
+  if (*numeroClientes >= MAXIMO_CLIENTES) {
+    printf("Limite de clientes atingido.\n");
+    return;
+  }
+  Cliente novoCliente;
+  printf("Digite o nome do cliente: ");
+  fgets(novoCliente.nome, sizeof(novoCliente.nome), stdin);
+  novoCliente.nome[strcspn(novoCliente.nome, "\n")] = 0; // Remover a quebra de linha
+
+  printf("Digite o senha do cliente: ");
+  fgets(novoCliente.senha, sizeof(novoCliente.senha), stdin);
+  novoCliente.senha[strcspn(novoCliente.senha, "\n")] = 0; // Remover a quebra de linha
+
+  novoCliente.saldo = 0;
+  novoCliente.transacoes = 0;
+  novoCliente.contaAtiva = 0;
+  novoCliente.bloqueada = 0;
+
+  clientes[*numeroClientes] = novoCliente;
+  (*numeroClientes)++;
+  printf("Cliente cadastrado com sucesso!\n");
+}
