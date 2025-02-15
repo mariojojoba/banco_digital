@@ -166,5 +166,23 @@ void consultarSaldoExtrato(Cliente clientes[], int clienteIndex) {
     printf("Total de transações realizadas: %d\n", clientes[clienteIndex].transacoes);
 }
 
+void verClientes(Cliente clientes[], int numClientes) {
+    if (numClientes == 0) {
+        printf("\nNenhum cliente cadastrado no sistema.\n");
+        return;
+    }
+
+    printf("\n=== Lista de Clientes ===\n");
+    for (int i = 0; i < numClientes; i++) {
+        printf("\nCliente %d:\n", i + 1);
+        printf("Nome: %s\n", clientes[i].nome);
+        printf("CPF: %s\n", clientes[i].cpf);
+        printf("Saldo: R$ %.2f\n", clientes[i].saldo);
+        printf("Conta Ativa: %s\n", clientes[i].contaAtiva ? "Sim" : "Não");
+        printf("Conta Bloqueada: %s\n", clientes[i].bloqueada ? "Sim" : "Não");
+        printf("--------------------------");
+    }
+}
+
 
 
