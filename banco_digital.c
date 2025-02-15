@@ -14,7 +14,7 @@ typedef struct {
     char cpf[12];
     char senha[15];
     float saldo;
-    int transacoes;
+    int transacoes[NTRANS];
     int contaAtiva; // 0 = Inativa, 1 = Ativa
     int bloqueada;  // 0 = Desbloqueada, 1 = Bloqueada
 } Cliente;
