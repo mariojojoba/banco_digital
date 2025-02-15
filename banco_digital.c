@@ -1,3 +1,30 @@
+
+#include <stdio.h>    // Biblioteca padrão de entrada e saída, usada para funções como printf() e scanf().
+#include <stdlib.h>   // Biblioteca para gerenciamento de memória, controle de processos e conversões.
+#include <locale.h>   // Biblioteca para configurar localizações, como suporte a acentuação e formatos regionais.
+#include <unistd.h>   // Biblioteca para manipulação de chamadas do sistema Unix (Mac e Linux), como sleep().
+#include <string.h>   // Biblioteca para manipulação de strings, com funções como strlen(), strcpy(), strcat(), etc.
+
+#define NCLIENTES 999
+#define NTRANS 999
+
+// Estrutura para representar um cliente de um sistema financeiro
+typedef struct {
+    char nome[50];
+    char cpf[12];
+    char senha[15];
+    float saldo;
+    int transacoes;
+    int contaAtiva; // 0 = Inativa, 1 = Ativa
+    int bloqueada;  // 0 = Desbloqueada, 1 = Bloqueada
+} Cliente;
+
+// Estrutura para representar um administrador
+typedef struct {
+    char usuario[20];
+    char senha[20];
+} Administrador;
+
 void terminal_Clear(int clock);
 int login_Cliente(Cliente clientes[], int numClientes);
 void menu_Cliente(Cliente clientes[], int clienteIndex);
