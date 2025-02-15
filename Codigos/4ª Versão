@@ -1,159 +1,180 @@
-#include <stdio.h>    // Biblioteca padrão de entrada e saída, usada para funções como printf() e scanf().
-#include <stdlib.h>   // Biblioteca para gerenciamento de memória, controle de processos e conversões.
-#include <locale.h>   // Biblioteca para configurar localizações, como suporte a acentuação e formatos regionais.
-#include <unistd.h>   // Biblioteca para manipulação de chamadas do sistema Unix (Mac e Linux), como sleep().
-#include <string.h>   // Biblioteca para manipulação de strings, com funções como strlen(), strcpy(), strcat(), etc.
+#include <stdio.h>
+#include <string.h>
 
-// Variáveis de Controle Globais
-#define NCLIENTES 9999 // Controle sobre a quantidade de clientes.
-#define NTRANS 9999 // Controle de transferências máximas.
-
-// Estrutura para representar um cliente de um sistema financeiro
+// Estrutura para armazenar os dados dos clientes
 typedef struct {
     char nome[50];
     char cpf[12];
     char senha[15];
     float saldo;
     int transacoes;
-    int contaAtiva; // 0 = Inativa, 1 = Ativa
-    int bloqueada;  // 0 = Desbloqueada, 1 = Bloqueada
+    int contaAtiva;
+    int bloqueada;
 } Cliente;
 
-// Estrutura para representar um administrador
-typedef struct {
-    char usuario[20];
-    char senha[20];
-} Administrador;
-
-// Atalhos para a declaração das funções:
-void terminalClear(int clock); // Função para limpar o terminal com atraso.
+// Funções
 void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int n);
-void saque_Feito_Por_Cliente(Cliente *cliente); // Idealiza o saque.
-void entrar_na_Conta_do_Cliente(Cliente clientes[], int numClientes);
+void sacar(Cliente clientes[], int quantidade);
+void transferir(Cliente clientes[], int quantidade);
 
 int main() {
-    setlocale(LC_ALL, "Portuguese");
-    Cliente clientes[] = {
-        {"João Silva", "12345678900", "senha123", 1000.0, 5, 1, 1}, // Bloqueado
-        {"Maria Souza", "98765432100", "maria321", 200.0, 1, 1, 0}, // Desbloqueado
-        {"Pedro Santos", "11122233344", "pedro444", 150.0, 2, 1, 1}, // Bloqueado
-        {"Ana Oliveira", "44455566677", "ana555", 300.0, 10, 1, 0}  // Desbloqueado
+    Cliente clientes[3] = {
+        {"Carlos Silva", "12345678901", "senha123", 5000.0, 0, 1, 0},
+        {"Ana Souza", "98765432100", "senha456", 3000.0, 0, 1, 0},
+        {"Marcos Lima", "11122233344", "senha789", 1000.0, 0, 1, 1} // Conta bloqueada
     };
-    int numClientes = sizeof(clientes) / sizeof(clientes[0]);
+    
     int opcao;
-
     do {
-        printf("\n****** Bem-vindo ao Banco Digital ******\n");
-        printf("1. Login como Cliente\n");
-        printf("2. Criar Conta\n");
-        printf("3. Login como ADM\n");
+        printf("\n=== Menu do Banco ===\n");
+        printf("1. Bloquear/Desbloquear conta\n");
+        printf("2. Sacar\n");
+        printf("3. Transferir\n");
         printf("4. Sair\n");
         printf("Escolha uma opção: ");
-
-        if (scanf("%d", &opcao) != 1) {
-            terminalClear(0);
-            printf("\nEntrada inválida! Digite um número.\n");
-            while (getchar() != '\n');
-            continue;
-        }
-
+        scanf("%d", &opcao);
+        
         switch (opcao) {
             case 1:
-                terminalClear(0);
-                entrar_na_Conta_do_Cliente(clientes, numClientes);
+                printf("Digite 0 para desbloquear ou 1 para bloquear: ");
+                int escolha;
+                scanf("%d", &escolha);
+                bloqueio_e_Desbloqueio_de_Clientes(clientes, 3, escolha);
                 break;
             case 2:
-                terminalClear(0);
-                printf("Função criarContaCliente() ainda não implementada.\n");
+                sacar(clientes, 3);
                 break;
             case 3:
-                terminalClear(0);
-                printf("Função adminLogin() ainda não implementada.\n");
+                transferir(clientes, 3);
                 break;
             case 4:
-                terminalClear(0);
                 printf("Saindo...\n");
                 break;
             default:
-                terminalClear(0);
-                printf("Opção inválida! Tente novamente.\n");
+                printf("Opção inválida!\n");
         }
     } while (opcao != 4);
-
+    
     return 0;
 }
 
-void terminalClear(int clock) {
-    sleep(clock + 0.7);
-    #ifdef _WIN32
-        system("cls");
-    #else
-        printf("\033[H\033[J");
-    #endif
-}
-
-// Função para o cliente acessar a conta
-void entrar_na_Conta_do_Cliente(Cliente clientes[], int numClientes) {
-    char cpf[12];
-    char senha[15];
-    
-    printf("Digite o CPF do cliente (somente números): \n");
-    fgets(cpf, sizeof(cpf), stdin);
-    cpf[strcspn(cpf, "\n")] = 0;
-    
-    printf("Digite a senha do usuário: \n");
-    fgets(senha, sizeof(senha), stdin);
-    senha[strcspn(senha, "\n")] = 0;
-    
-    for (int i = 0; i < numClientes; i++) {
-        if (strcmp(clientes[i].cpf, cpf) == 0 && strcmp(clientes[i].senha, senha) == 0) {
-            if (clientes[i].contaAtiva && !clientes[i].bloqueada) {
-                int opcao;
-                while (1) {
-                    printf("\nMenu Cliente\n");
-                    printf("1. Consultar saldo e extrato\n");
-                    printf("2. Realizar depósito\n");
-                    printf("3. Realizar saque\n");
-                    printf("4. Transferir dinheiro\n");
-                    printf("5. Sair\n");
-                    printf("Escolha uma opção: ");
-                    
-                    if (scanf("%d", &opcao) != 1) {
-                        terminalClear(0);
-                        printf("\nEntrada inválida! Digite um número.\n");
-                        while (getchar() != '\n');
-                        continue;
-                    }
-                    
-                    switch (opcao) {
-                    case 1:
-                        terminalClear(0);
-                        // 1. Consultar saldo e extrato.
-                        break;
-                    case 2:
-                        terminalClear(0);
-                        // 2. Realizar depósito.
-                        break;
-                    case 3:
-                        terminalClear(0);
-                        saque_Feito_Por_Cliente(&clientes[i]);
-                        break;
-                    case 4:
-                        terminalClear(0);
-                        // 4. Transferir dinheiro
-                        break;
-                    case 5:
-                        terminalClear(0);
-                        return;
-                    default:
-                        terminalClear(0);
-                        printf("Opção Inválida.\n");
-                        break;
-                    }
-                }
-            }
+// Função para bloquear ou desbloquear a conta
+void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int n) {
+    char entrada[50];
+    printf("Contas bloqueadas:\n");
+    for (int i = 0; i < quantidade; i++) {
+        if (clientes[i].bloqueada) {
+            printf("Nome: %s, CPF: %s\n", clientes[i].nome, clientes[i].cpf);
         }
     }
-    terminalClear(0);
-    printf("Cliente não encontrado ou conta inativa/bloqueada!\n");
+    printf("\nContas desbloqueadas:\n");
+    for (int i = 0; i < quantidade; i++) {
+        if (!clientes[i].bloqueada) {
+            printf("Nome: %s, CPF: %s\n", clientes[i].nome, clientes[i].cpf);
+        }
+    }
+    
+    if (n == 0) {
+        printf("\nDeseja desbloquear uma conta? (s/n): ");
+        char resposta;
+        scanf(" %c", &resposta);
+        if (resposta == 's' || resposta == 'S') {
+            printf("Digite o nome ou CPF da conta para desbloquear: ");
+            scanf("%s", entrada);
+            for (int i = 0; i < quantidade; i++) {
+                if (strcmp(clientes[i].nome, entrada) == 0 || strcmp(clientes[i].cpf, entrada) == 0) {
+                    clientes[i].bloqueada = 0;
+                    printf("Conta de %s desbloqueada.\n", clientes[i].nome);
+                    return;
+                }
+            }
+            printf("Conta não encontrada.\n");
+        }
+    } else {
+        printf("\nDigite o nome ou CPF da conta para bloquear: ");
+        scanf("%s", entrada);
+        for (int i = 0; i < quantidade; i++) {
+            if (strcmp(clientes[i].nome, entrada) == 0 || strcmp(clientes[i].cpf, entrada) == 0) {
+                clientes[i].bloqueada = 1;
+                printf("Conta de %s bloqueada.\n", clientes[i].nome);
+                return;
+            }
+        }
+        printf("Conta não encontrada.\n");
+    }
+}
+
+// Função para realizar saque
+void sacar(Cliente clientes[], int quantidade) {
+    char cpf[12], senha[15];
+    float valor;
+    
+    printf("Digite seu CPF: ");
+    scanf("%s", cpf);
+    printf("Digite sua senha: ");
+    scanf("%s", senha);
+    
+    for (int i = 0; i < quantidade; i++) {
+        if (strcmp(clientes[i].cpf, cpf) == 0 && strcmp(clientes[i].senha, senha) == 0) {
+            printf("Digite o valor do saque: ");
+            scanf("%f", &valor);
+            if (clientes[i].saldo >= valor) {
+                clientes[i].saldo -= valor;
+                printf("Saque realizado! Novo saldo: %.2f\n", clientes[i].saldo);
+            } else {
+                printf("Saldo insuficiente!\n");
+            }
+            return;
+        }
+    }
+    printf("CPF ou senha incorretos!\n");
+}
+
+// Função para realizar transferência
+void transferir(Cliente clientes[], int quantidade) {
+    char cpfOrigem[12], senha[15], cpfDestino[12];
+    float valor;
+    
+    printf("Digite seu CPF: ");
+    scanf("%s", cpfOrigem);
+    printf("Digite sua senha: ");
+    scanf("%s", senha);
+    
+    int indiceOrigem = -1, indiceDestino = -1;
+    for (int i = 0; i < quantidade; i++) {
+        if (strcmp(clientes[i].cpf, cpfOrigem) == 0 && strcmp(clientes[i].senha, senha) == 0) {
+            indiceOrigem = i;
+        }
+    }
+    
+    if (indiceOrigem == -1) {
+        printf("CPF ou senha incorretos!\n");
+        return;
+    }
+    
+    printf("Digite o CPF do destinatário: ");
+    scanf("%s", cpfDestino);
+    
+    for (int i = 0; i < quantidade; i++) {
+        if (strcmp(clientes[i].cpf, cpfDestino) == 0) {
+            indiceDestino = i;
+        }
+    }
+    
+    if (indiceDestino == -1) {
+        printf("Conta de destino não encontrada!\n");
+        return;
+    }
+    
+    printf("Destinatário: %s\n", clientes[indiceDestino].nome);
+    printf("Digite o valor da transferência: ");
+    scanf("%f", &valor);
+    
+    if (clientes[indiceOrigem].saldo >= valor) {
+        clientes[indiceOrigem].saldo -= valor;
+        clientes[indiceDestino].saldo += valor;
+        printf("Transferência realizada com sucesso! Novo saldo: %.2f\n", clientes[indiceOrigem].saldo);
+    } else {
+        printf("Saldo insuficiente!\n");
+    }
 }
