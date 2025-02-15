@@ -29,6 +29,7 @@ void terminalClear(int clock);
 int loginCliente(Cliente clientes[], int numClientes);
 void menuCliente(Cliente clientes[], int clienteIndex);
 void consultarSaldoExtrato(Cliente clientes[], int clienteIndex);
+void verClientes(Cliente clientes[], int numClientes);
 
 int main() {
     setlocale(LC_ALL, "Portuguese"); // Ajuste para aceitar paramentros de escrita em português
