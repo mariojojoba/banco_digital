@@ -1,0 +1,159 @@
+#include <stdio.h>    // Biblioteca padrão de entrada e saída, usada para funções como printf() e scanf().
+#include <stdlib.h>   // Biblioteca para gerenciamento de memória, controle de processos e conversões.
+#include <locale.h>   // Biblioteca para configurar localizações, como suporte a acentuação e formatos regionais.
+#include <unistd.h>   // Biblioteca para manipulação de chamadas do sistema Unix (Mac e Linux), como sleep().
+#include <string.h>   // Biblioteca para manipulação de strings, com funções como strlen(), strcpy(), strcat(), etc.
+
+// Variáveis de Controle Globais
+#define NCLIENTES 9999 // Controle sobre a quantidade de clientes.
+#define NTRANS 9999 // Controle de transferências máximas.
+
+// Estrutura para representar um cliente de um sistema financeiro
+typedef struct {
+    char nome[50];
+    char cpf[12];
+    char senha[15];
+    float saldo;
+    int transacoes;
+    int contaAtiva; // 0 = Inativa, 1 = Ativa
+    int bloqueada;  // 0 = Desbloqueada, 1 = Bloqueada
+} Cliente;
+
+// Estrutura para representar um administrador
+typedef struct {
+    char usuario[20];
+    char senha[20];
+} Administrador;
+
+// Atalhos para a declaração das funções:
+void terminalClear(int clock); // Função para limpar o terminal com atraso.
+void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int n);
+void saque_Feito_Por_Cliente(Cliente *cliente); // Idealiza o saque.
+void entrar_na_Conta_do_Cliente(Cliente clientes[], int numClientes);
+
+int main() {
+    setlocale(LC_ALL, "Portuguese");
+    Cliente clientes[] = {
+        {"João Silva", "12345678900", "senha123", 1000.0, 5, 1, 1}, // Bloqueado
+        {"Maria Souza", "98765432100", "maria321", 200.0, 1, 1, 0}, // Desbloqueado
+        {"Pedro Santos", "11122233344", "pedro444", 150.0, 2, 1, 1}, // Bloqueado
+        {"Ana Oliveira", "44455566677", "ana555", 300.0, 10, 1, 0}  // Desbloqueado
+    };
+    int numClientes = sizeof(clientes) / sizeof(clientes[0]);
+    int opcao;
+
+    do {
+        printf("\n****** Bem-vindo ao Banco Digital ******\n");
+        printf("1. Login como Cliente\n");
+        printf("2. Criar Conta\n");
+        printf("3. Login como ADM\n");
+        printf("4. Sair\n");
+        printf("Escolha uma opção: ");
+
+        if (scanf("%d", &opcao) != 1) {
+            terminalClear(0);
+            printf("\nEntrada inválida! Digite um número.\n");
+            while (getchar() != '\n');
+            continue;
+        }
+
+        switch (opcao) {
+            case 1:
+                terminalClear(0);
+                entrar_na_Conta_do_Cliente(clientes, numClientes);
+                break;
+            case 2:
+                terminalClear(0);
+                printf("Função criarContaCliente() ainda não implementada.\n");
+                break;
+            case 3:
+                terminalClear(0);
+                printf("Função adminLogin() ainda não implementada.\n");
+                break;
+            case 4:
+                terminalClear(0);
+                printf("Saindo...\n");
+                break;
+            default:
+                terminalClear(0);
+                printf("Opção inválida! Tente novamente.\n");
+        }
+    } while (opcao != 4);
+
+    return 0;
+}
+
+void terminalClear(int clock) {
+    sleep(clock + 0.7);
+    #ifdef _WIN32
+        system("cls");
+    #else
+        printf("\033[H\033[J");
+    #endif
+}
+
+// Função para o cliente acessar a conta
+void entrar_na_Conta_do_Cliente(Cliente clientes[], int numClientes) {
+    char cpf[12];
+    char senha[15];
+    
+    printf("Digite o CPF do cliente (somente números): \n");
+    fgets(cpf, sizeof(cpf), stdin);
+    cpf[strcspn(cpf, "\n")] = 0;
+    
+    printf("Digite a senha do usuário: \n");
+    fgets(senha, sizeof(senha), stdin);
+    senha[strcspn(senha, "\n")] = 0;
+    
+    for (int i = 0; i < numClientes; i++) {
+        if (strcmp(clientes[i].cpf, cpf) == 0 && strcmp(clientes[i].senha, senha) == 0) {
+            if (clientes[i].contaAtiva && !clientes[i].bloqueada) {
+                int opcao;
+                while (1) {
+                    printf("\nMenu Cliente\n");
+                    printf("1. Consultar saldo e extrato\n");
+                    printf("2. Realizar depósito\n");
+                    printf("3. Realizar saque\n");
+                    printf("4. Transferir dinheiro\n");
+                    printf("5. Sair\n");
+                    printf("Escolha uma opção: ");
+                    
+                    if (scanf("%d", &opcao) != 1) {
+                        terminalClear(0);
+                        printf("\nEntrada inválida! Digite um número.\n");
+                        while (getchar() != '\n');
+                        continue;
+                    }
+                    
+                    switch (opcao) {
+                    case 1:
+                        terminalClear(0);
+                        // 1. Consultar saldo e extrato.
+                        break;
+                    case 2:
+                        terminalClear(0);
+                        // 2. Realizar depósito.
+                        break;
+                    case 3:
+                        terminalClear(0);
+                        saque_Feito_Por_Cliente(&clientes[i]);
+                        break;
+                    case 4:
+                        terminalClear(0);
+                        // 4. Transferir dinheiro
+                        break;
+                    case 5:
+                        terminalClear(0);
+                        return;
+                    default:
+                        terminalClear(0);
+                        printf("Opção Inválida.\n");
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    terminalClear(0);
+    printf("Cliente não encontrado ou conta inativa/bloqueada!\n");
+}
