@@ -1,161 +1,263 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <locale.h>
-
-#define MAXIMO_CLIENTES 5
-
-// Definição da estrutura de Cliente
-typedef struct {
-  char nome[50];
-  char senha[15];
-  float saldo;
-  int transacoes;
-  int contaAtiva; // 0 = Inativa, 1 = Ativa
-  int bloqueada;  // 0 = Desbloqueada, 1 = Bloqueada
-} Cliente;
-
-// Definição da estrutura de Administrador
-typedef struct {
-  char nome[50];
-  char senha[20];
-} Administrador;
-
-void entrarContaAdministrador(Administrador *adm,Cliente *clientes,int numClientes);
-void ativarContaCliente(Cliente *cliente,int numC);
-//void exibirContas();
-//void bloquearDesbloquearConta();
-//void removerConta();
-void cadastrarCliente(Cliente *clientes, int *numCliente);
-//void entrarContaCliente();
+void terminal_Clear(int clock);
+int login_Cliente(Cliente clientes[], int numClientes);
+void menu_Cliente(Cliente clientes[], int clienteIndex);
+void consultar_Saldo_Extrato(Cliente clientes[], int clienteIndex);
+void ver_Clientes(Cliente clientes[], int numClientes);
+void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int n);
+void sacar(Cliente clientes[], int quantidade, int clienteIndex);
+void transferir(Cliente clientes[], int quantidade, int clienteIndex);
 
 int main() {
-  setlocale(LC_ALL, "Portuguese");
-  Administrador admin = {"adm", "senha123"};  // Administrador pré-cadastrado
-  Cliente clientes[MAXIMO_CLIENTES];
-  int numClientes = 0;
-  int opcao;
+    setlocale(LC_ALL, "Portuguese");
 
-  while (1) {
-      printf("\n----- Banco Digital -----\n");
-      printf("1. Entrar na conta de administrador\n");
-      printf("2. Cadastrar um novo cliente\n");
-      printf("3. Entrar na conta de cliente\n");
-      printf("4. Sair\n");
-      printf("Escolha uma opcao: ");
-      scanf("%d", &opcao);
-      getchar(); // Limpar o buffer de entrada
+    Cliente clientes[NCLIENTES] = {
+        {"João Silva", "12345678901", "senha123", 1000.50, "Nenhuma", 1, 0},
+        {"Maria Oliveira", "98765432100", "senha456", 2500.00, "Nenhuma", 1, 0},
+        {"Carlos Souza", "11223344556", "senha789", 0.00, "Nenhuma", 1, 0},
+        {"Ana Pereira", "22334455667", "senha321", 500.75, "Nenhuma", 1, 0},
+        {"Lucas Costa", "99887766554", "senha654", 100.25, "Nenhuma", 1, 0}
+    };
 
-      if (opcao == 1) {
-          system("cls");
-          entrarContaAdministrador(&admin, clientes, numClientes);
-      } else if (opcao == 2) {
-          system("cls");
-          cadastrarCliente(clientes, &numClientes);
-      } else if (opcao == 3) {
-          system("cls");
-          //entrarContaCliente();
-          break;
-      } else if (opcao == 4) {
-          break;
-      } else {
-          system("cls");
-          printf("Opcao invalida!\n");
-      }
-  }
+    int opcao;
+    int numClientes = 5;
+    do {
+        printf("\n---------- Bem-vindo ao Banco Digital ----------\n");
+        printf("1. Login como Cliente\n2. Criar Conta\n3. Login como ADM\n4. Sair\nEscolha uma opção: ");
 
-  return 0;
+        if (scanf("%d", &opcao) != 1) {
+            terminal_Clear(0);
+            printf("\nEntrada inválida! Digite um número.\n");
+            while (getchar() != '\n');
+            continue;
+        }
+
+        switch (opcao) {
+            case 1:
+                terminal_Clear(0);
+                int clienteIndex = login_Cliente(clientes, numClientes);
+                if (clienteIndex != -1) {
+                    menu_Cliente(clientes, clienteIndex);
+                }
+                break;
+            case 2:
+                terminal_Clear(0);
+                printf("Função criarContaCliente() ainda não implementada.\n");
+                break;
+            case 3:
+                terminal_Clear(0);
+                printf("Função adminLogin() ainda não implementada.\n");
+                break;
+            case 4:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opção inválida! Tente novamente.\n");
+        }
+    } while (opcao != 4);
+
+    return 0;
 }
 
-void entrarContaAdministrador(Administrador *adm,Cliente *clientes,int numClientes){
-  char nome[50], senha[20];
-  int t = 1;
-  printf("Digite o nome de usuario: ");
-  fgets(nome, sizeof(nome), stdin);
-  nome[strcspn(nome, "\n")] = 0;  // Remover a quebra de linha
+void terminal_Clear(int clock) {
+    sleep(clock + 0.7);
+    #ifdef _WIN32
+        system("cls");
+    #else
+        printf("\033[H\033[J");
+    #endif
+}
 
-  printf("Digite a senha: ");
-  fgets(senha, sizeof(senha), stdin);
-  senha[strcspn(senha, "\n")] = 0;
+int login_Cliente(Cliente clientes[], int numClientes) {
+    char cpf[12], senha[15];
 
-  system("cls");
+    printf("Digite seu CPF: ");
+    fgets(cpf, sizeof(cpf), stdin);
+    cpf[strcspn(cpf, "\n")] = 0;
 
-  int opcao;
-  if(strcmp(nome, adm->nome) == 0 && strcmp(senha, adm->senha) == 0){
-    while(t == 1){
-      printf("\n----- Ola %s. Esse e o seu Menu! -----\n", nome);
-      printf("1) Ativa conta do cliente\n");
-      printf("2) Exibir contas\n");
-      printf("3) Bloquear ou desbloquear conta\n");
-      printf("4) Remover conta\n");
-      printf("5) Sair do Administrador\n");
-      printf("Escolha uma opcao: ");
-      scanf("%d", &opcao);
-      switch(opcao){
-        case 1:
-          system("cls");
-          ativarContaCliente(clientes, numClientes);
-          break;
-        case 2:
-          system("cls");
-          //exibirContas();
-          break;
-        case 3:
-          system("cls");
-          //bloquearDesbloquearConta();
-          break;
-        case 4: 
-          system("cls");
-          //removerConta();
-          break;
-        case 5: t = 0; system("cls"); break;
-      }
+    printf("Digite sua senha: ");
+    fgets(senha, sizeof(senha), stdin);
+    senha[strcspn(senha, "\n")] = 0;
+
+    for (int i = 0; i < numClientes; i++) {
+        if (strcmp(clientes[i].cpf, cpf) == 0 && strcmp(clientes[i].senha, senha) == 0) {
+            if (clientes[i].contaAtiva && !clientes[i].bloqueada) {
+                printf("Login realizado com sucesso!\n");
+                return i;
+            } else {
+                printf("Conta inativa ou bloqueada!\n");
+                return -1;
+            }
+        }
     }
-  }else{
-    printf("Nome ou/e senha incorreto(s)!\n");
-  }
-  return;
+
+    printf("Cliente não encontrado! CPF ou senha incorretos.\n");
+    return -1;
 }
 
-void ativarContaCliente(Cliente *cliente,int numeroClientes){
-  char senha[15];
-  printf("Digite o senha do cliente para ativar a conta: ");
-  fgets(senha, sizeof(senha), stdin);
-  senha[strcspn(senha, "\n")] = 0;  // Remover a quebra de linha
+void menu_Cliente(Cliente clientes[], int clienteIndex) {
+    int opcao;
+    do {
+        printf("\n---------- Menu Cliente ----------\n");
+        printf("1. Consultar saldo e extrato\n2. Realizar depósito\n3. Realizar saque\n4. Transferir dinheiro\n5. Sair\nEscolha uma opção: ");
+                
+        if (scanf("%d", &opcao) != 1) {
+            printf("Entrada inválida! Tente novamente.\n");
+            while (getchar() != '\n');
+            continue;
+        }
 
-  for (int i = 0; i < numeroClientes; i++) {
-      if (strcmp(cliente[i].senha, senha) == 0) {
-          cliente[i].contaAtiva = 1;
-          printf("Conta de %s ativada com sucesso!\n", cliente[i].nome);
-          return;
-      }
-  }
-  system("cls");
-  printf("Cliente nao encontrado ou nao existe!\n");
-
-  return;
+        switch (opcao) {
+            case 1:
+                terminal_Clear(0);
+                consultar_Saldo_Extrato(clientes, clienteIndex);
+                break;
+            case 2:
+                terminal_Clear(0);
+                //realizarDeposito(clientes, clienteIndex);
+                break;
+            case 3:
+                terminal_Clear(0);
+                sacar(clientes, NCLIENTES, clienteIndex);
+                break;
+            case 4:
+                terminal_Clear(0);
+                transferir(clientes, NCLIENTES, clienteIndex);
+                break;  
+            case 5:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opção inválida! Tente novamente.\n");
+                break;
+        }
+    } while (opcao != 5);
 }
 
-void cadastrarCliente(Cliente *clientes, int *numeroClientes){
-  if (*numeroClientes >= MAXIMO_CLIENTES) {
-    printf("Limite de clientes atingido.\n");
-    return;
-  }
-  Cliente novoCliente;
-  printf("Digite o nome do cliente: ");
-  fgets(novoCliente.nome, sizeof(novoCliente.nome), stdin);
-  novoCliente.nome[strcspn(novoCliente.nome, "\n")] = 0; // Remover a quebra de linha
+void consultar_Saldo_Extrato(Cliente clientes[], int clienteIndex) {
+    printf("\n------------- Saldo e Extrato -------------\n");
+    printf("Nome: %s\n", clientes[clienteIndex].nome);
+    printf("CPF: %s\n", clientes[clienteIndex].cpf);
+    printf("Saldo atual: R$ %.2f\n", clientes[clienteIndex].saldo);
+    printf("Total de transações realizadas: %s\n", clientes[clienteIndex].transacoes);
+    printf("\n------------------------------------------\n");
+}
 
-  printf("Digite o senha do cliente: ");
-  fgets(novoCliente.senha, sizeof(novoCliente.senha), stdin);
-  novoCliente.senha[strcspn(novoCliente.senha, "\n")] = 0; // Remover a quebra de linha
+void ver_Clientes(Cliente clientes[], int numClientes) {
+    if (numClientes == 0) {
+        printf("\nNenhum cliente cadastrado no sistema.\n");
+        return;
+    }
 
-  novoCliente.saldo = 0;
-  novoCliente.transacoes = 0;
-  novoCliente.contaAtiva = 0;
-  novoCliente.bloqueada = 0;
+    printf("\n------------- Lista de Clientes -------------\n");
+    for (int i = 0; i < numClientes; i++) {
+        printf("\nCliente %d:\n", i + 1);
+        printf("Nome: %s\n", clientes[i].nome);
+        printf("CPF: %s\n", clientes[i].cpf);
+        printf("Saldo: R$ %.2f\n", clientes[i].saldo);
+        printf("Conta Ativa: %s\n", clientes[i].contaAtiva ? "Sim" : "Não");
+        printf("Conta Bloqueada: %s\n", clientes[i].bloqueada ? "Sim" : "Não");
+        printf("\n------------------------------------------\n");
+    }
+}
 
-  clientes[*numeroClientes] = novoCliente;
-  (*numeroClientes)++;
-  printf("Cliente cadastrado com sucesso!\n");
+void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int n) {
+    char entrada[50];
+    printf("------------- Contas bloqueadas -------------\n");
+    for (int i = 0; i < quantidade; i++) {
+        if (clientes[i].bloqueada) {
+            printf("Nome: %s | CPF: %s\n", clientes[i].nome, clientes[i].cpf);
+        }
+    }
+    printf("\n------------- Contas desbloqueadas -------------\n");
+    for (int i = 0; i < quantidade; i++) {
+        if (!clientes[i].bloqueada) {
+            printf("Nome: %s | CPF: %s\n", clientes[i].nome, clientes[i].cpf);
+        }
+    }
+    
+    if (n == 0) {
+        printf("Digite o nome ou CPF da conta para desbloquear: ");
+        scanf("%s", entrada);
+        for (int i = 0; i < quantidade; i++) {
+            if (strcmp(clientes[i].nome, entrada) == 0 || strcmp(clientes[i].cpf, entrada) == 0) {
+                clientes[i].bloqueada = 0;
+                printf("Conta de %s desbloqueada.\n", clientes[i].nome);
+                return;
+            }
+        }
+        printf("Conta não encontrada.\n");
+    } else {
+        printf("\nDigite o nome ou CPF da conta para bloquear: ");
+        scanf("%s", entrada);
+        for (int i = 0; i < quantidade; i++) {
+            if (strcmp(clientes[i].nome, entrada) == 0 || strcmp(clientes[i].cpf, entrada) == 0) {
+                clientes[i].bloqueada = 1;
+                printf("Conta de %s bloqueada.\n", clientes[i].nome);
+                return;
+            }
+        }
+        printf("Conta não encontrada.\n");
+    }
+}
+
+void sacar(Cliente clientes[], int quantidade, int clienteIndex) {
+    float valor;
+    printf("Digite o valor do saque: ");
+    scanf("%f", &valor);
+
+    if (clientes[clienteIndex].saldo < valor) {
+        printf("Saldo insuficiente!\n");
+        return;
+    }
+
+    clientes[clienteIndex].saldo -= valor;
+    printf("Saque realizado com sucesso! Novo saldo: R$ %.2f\n", clientes[clienteIndex].saldo);
+}
+
+void transferir(Cliente clientes[], int quantidade, int clienteIndex) {
+    char cpfDestino[12];
+    float valor;
+    
+    printf("Digite o CPF do destinatário: ");
+    scanf("%s", cpfDestino);
+
+    int destinoIndex = -1;
+    for (int i = 0; i < quantidade; i++) {
+        if (strcmp(clientes[i].cpf, cpfDestino) == 0) {
+            destinoIndex = i;
+            break;
+        }
+    }
+
+    if (destinoIndex == -1) {
+        printf("Conta de destino não encontrada.\n");
+        return;
+    }
+
+    printf("Digite o valor a ser transferido: ");
+    scanf("%f", &valor);
+
+    if (clientes[clienteIndex].saldo < valor) {
+        printf("Saldo insuficiente!\n");
+        return;
+    }
+
+    // Registrar a transação no extrato de ambos os clientes
+    char transacao[100];
+    snprintf(transacao, sizeof(transacao), "Transferência de R$ %.2f para %s (CPF: %s)\n", valor, clientes[destinoIndex].nome, clientes[destinoIndex].cpf);
+    
+    // Adiciona a transação no extrato do cliente remetente
+    strcat(clientes[clienteIndex].transacoes, transacao);
+    
+    // Adiciona a transação no extrato do cliente destinatário
+    snprintf(transacao, sizeof(transacao), "Recebido R$ %.2f de %s (CPF: %s)\n", valor, clientes[clienteIndex].nome, clientes[clienteIndex].cpf);
+    strcat(clientes[destinoIndex].transacoes, transacao);
+
+    // Realizar a transferência
+    clientes[clienteIndex].saldo -= valor;
+    clientes[destinoIndex].saldo += valor;
+
+    printf("Transferência realizada com sucesso!\n");
+    printf("Novo saldo: R$ %.2f\n", clientes[clienteIndex].saldo);
+    printf("Novo saldo do destinatário: R$ %.2f\n", clientes[destinoIndex].saldo);
 }
