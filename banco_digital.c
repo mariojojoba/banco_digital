@@ -1,3 +1,4 @@
+
 #include <stdio.h>    // Biblioteca padrão de entrada e saída, usada para funções como printf() e scanf().
 #include <stdlib.h>   // Biblioteca para gerenciamento de memória, controle de processos e conversões.
 #include <locale.h>   // Biblioteca para configurar localizações, como suporte a acentuação e formatos regionais.
@@ -180,7 +181,7 @@ void consultar_Saldo_Extrato(Cliente clientes[], int clienteIndex) {
     printf("Nome: %s\n", clientes[clienteIndex].nome);
     printf("CPF: %s\n", clientes[clienteIndex].cpf);
     printf("Saldo atual: R$ %.2f\n", clientes[clienteIndex].saldo);
-    printf("Total de transações realizadas: %s\n", clientes[clienteIndex].transacoes);
+    printf("Transações realizadas:\n%s", clientes[clienteIndex].transacoes);
 }
 
 void ver_Clientes(Cliente clientes[], int numClientes) {
@@ -242,7 +243,22 @@ void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int 
 }
 
 void sacar(Cliente clientes[], int quantidade, int clienteIndex) {
+    char senha[15];
     float valor;
+
+    // Confirmação de identidade - solicita senha do cliente de origem
+    printf("---------------- Confirmação de Identidade ----------------\n");
+    printf("Digite sua senha: ");
+    scanf("%14s", senha);
+    getchar();  // Limpa o \n que ficou no buffer
+
+    // Verificar se a senha está correta
+    if (strcmp(clientes[clienteIndex].senha, senha) != 0) {
+        printf("Senha incorreta! Saque cancelado.\n");
+        return;
+    }
+
+    // Solicitar valor do saque
     printf("Digite o valor que deseja sacar: ");
     if (scanf("%f", &valor) != 1 || valor <= 0) {
         printf("Valor inválido! Tente novamente.\n");
@@ -255,13 +271,21 @@ void sacar(Cliente clientes[], int quantidade, int clienteIndex) {
         return;
     }
 
+    // Realizar o saque
     clientes[clienteIndex].saldo -= valor;
     printf("Saque de R$ %.2f realizado com sucesso! Saldo atual: R$ %.2f\n", valor, clientes[clienteIndex].saldo);
 }
 
 void transferir(Cliente clientes[], int quantidade, int clienteIndex) {
-    char cpf_destino[12];
+    char cpf_destino[12], senha[15];
     float valor;
+    
+    // Verificar se a conta do cliente de origem está ativa e não bloqueada
+    if ((clientes[clienteIndex].contaAtiva)==0 || (clientes[clienteIndex].bloqueada)==0) {
+        printf("Sua conta está desativada ou bloqueada. Não é possível realizar a transferência.\n");
+        return;
+    }
+
     printf("Digite o CPF do destinatário: ");
     scanf("%11s", cpf_destino);
     getchar();
@@ -278,18 +302,66 @@ void transferir(Cliente clientes[], int quantidade, int clienteIndex) {
         return;
     }
 
-    // Verifica se o destinatário existe
+    // Verifica se o destinatário existe e se a conta está ativa e não bloqueada
     for (int i = 0; i < quantidade; i++) {
         if (strcmp(clientes[i].cpf, cpf_destino) == 0) {
+            // Verificação da conta do destinatário
+            if ((clientes[i].contaAtiva)==0) {
+                printf("A conta do destinatário está desativada.\nNão é possível realizar a transferência.\n");
+                return;
+            }
+
+            // Se a transação anterior do cliente de origem for "Nenhuma", limpa o campo de transações
+            if (strcmp(clientes[clienteIndex].transacoes, "Nenhuma") == 0) {
+                strcpy(clientes[clienteIndex].transacoes, "");  // Limpa a transação anterior
+            }
+
+            // Cria a string de transação para o cliente de origem
+            char transacao_origem[100];
+            snprintf(transacao_origem, sizeof(transacao_origem), "Transferência de R$ %.2f para %s\n", valor, clientes[i].nome);
+
+            // Adiciona a nova transação no extrato do cliente origem
+            if (strcmp(clientes[clienteIndex].transacoes, "Nenhuma") != 0) {
+                strcat(clientes[clienteIndex].transacoes, " ");
+            }
+            strcat(clientes[clienteIndex].transacoes, transacao_origem);
+
+            // Cria a string de transação para o destinatário
+            char transacao_destino[100];
+            snprintf(transacao_destino, sizeof(transacao_destino), "Recebido R$ %.2f de %s\n", valor, clientes[clienteIndex].nome);
+
+            // Se a transação do destinatário for "Nenhuma", ele começa com a nova transação
+            if (strcmp(clientes[i].transacoes, "Nenhuma") == 0) {
+                strcpy(clientes[i].transacoes, transacao_destino);
+            } else {
+                strcat(clientes[i].transacoes, " ");  // Adiciona um espaço para separar as transações
+                strcat(clientes[i].transacoes, transacao_destino);  // Adiciona a transação
+            }
+
+            // Confirmação de identidade - solicita senha do cliente de origem
+            printf("---------------- Confirmação de Identidade ----------------\n");
+            printf("Olá,%s.\nDigite sua senha: ",clientes[clienteIndex].nome);
+            scanf("%14s", senha);
+            getchar();  // Limpa o \n que ficou no buffer
+
+            // Verificar se a senha está correta
+            if (strcmp(clientes[clienteIndex].senha, senha) != 0) {
+                printf("Senha incorreta! Transferência cancelada.\n");
+                return;
+            }
+
+            // Realiza a transferência de valores
             clientes[clienteIndex].saldo -= valor;
             clientes[i].saldo += valor;
+
             printf("Transferência de R$ %.2f realizada para %s. Saldo atual: R$ %.2f\n", valor, clientes[i].nome, clientes[clienteIndex].saldo);
             return;
         }
     }
 
-    printf("Cliente destino não encontrado!\n");
+    printf("Cliente destinatário não encontrado!\n");
 }
+
 
 void depositar(Cliente clientes[], int clienteIndex) {
     float valor;
