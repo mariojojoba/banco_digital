@@ -1,4 +1,3 @@
-
 #include <stdio.h>    // Biblioteca padrão de entrada e saída, usada para funções como printf() e scanf().
 #include <stdlib.h>   // Biblioteca para gerenciamento de memória, controle de processos e conversões.
 #include <locale.h>   // Biblioteca para configurar localizações, como suporte a acentuação e formatos regionais.
@@ -262,17 +261,37 @@ void sacar(Cliente clientes[], int quantidade, int clienteIndex) {
     printf("Digite o valor que deseja sacar: ");
     if (scanf("%f", &valor) != 1 || valor <= 0) {
         printf("Valor inválido! Tente novamente.\n");
-        while (getchar() != '\n');
+        while (getchar() != '\n');  // Limpa o buffer
         return;
     }
 
+    // Verificar saldo
     if (clientes[clienteIndex].saldo < valor) {
-        printf("Saldo insuficiente!\n");
+        printf("Saldo insuficiente! Saldo atual: R$ %.2f\n", clientes[clienteIndex].saldo);
         return;
     }
 
     // Realizar o saque
     clientes[clienteIndex].saldo -= valor;
+
+    // Formatar a transação
+    char transacao[50];
+    snprintf(transacao, sizeof(transacao), "Saque: R$ %.2f", valor);
+
+    // Verificar se "Nenhum" existe na string de transações
+    if (strstr(clientes[clienteIndex].transacoes, "Nenhum") != NULL) {
+        // Substituir "Nenhum" pela transação de saque
+        char *pos = strstr(clientes[clienteIndex].transacoes, "Nenhum");
+        strncpy(pos, transacao, strlen(transacao));
+        printf("Transação de saque registrada com sucesso.\n");
+    } else {
+        // Adicionar o saque ao final da string de transações
+        strcat(clientes[clienteIndex].transacoes, " | ");
+        strcat(clientes[clienteIndex].transacoes, transacao);
+        printf("Transação de saque adicionada com sucesso.\n");
+    }
+
+    // Exibir mensagem final
     printf("Saque de R$ %.2f realizado com sucesso! Saldo atual: R$ %.2f\n", valor, clientes[clienteIndex].saldo);
 }
 
@@ -361,7 +380,6 @@ void transferir(Cliente clientes[], int quantidade, int clienteIndex) {
 
     printf("Cliente destinatário não encontrado!\n");
 }
-
 
 void depositar(Cliente clientes[], int clienteIndex) {
     float valor;
