@@ -33,16 +33,18 @@ void ver_Clientes(Cliente clientes[], int numClientes);
 void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int n);
 void sacar(Cliente clientes[], int quantidade, int clienteIndex);
 void transferir(Cliente clientes[], int quantidade, int clienteIndex);
+void depositar(Cliente clientes[], int clienteIndex);
+void removerConta(Cliente clientes[], int numClientes);
 
 int main() {
     setlocale(LC_ALL, "Portuguese");
 
     Cliente clientes[NCLIENTES] = {
-        {"João Silva", "12345678901", "senha123", 1000.50, "Nenhuma", 1, 0},
-        {"Maria Oliveira", "98765432100", "senha456", 2500.00, "Nenhuma", 1, 0},
-        {"Carlos Souza", "11223344556", "senha789", 0.00, "Nenhuma", 1, 0},
-        {"Ana Pereira", "22334455667", "senha321", 500.75, "Nenhuma", 1, 0},
-        {"Lucas Costa", "99887766554", "senha654", 100.25, "Nenhuma", 1, 0}
+        {"João Silva", "12345678901", "senha123", 1000.50, {0}, 1, 0},
+        {"Maria Oliveira", "98765432100", "senha456", 2500.00, {0}, 1, 0},
+        {"Carlos Souza", "11223344556", "senha789", 0.00, {0}, 1, 0},
+        {"Ana Pereira", "22334455667", "senha321", 500.75, {0}, 1, 0},
+        {"Lucas Costa", "99887766554", "senha654", 100.25, {0}, 1, 0}
     };
 
     int opcao;
@@ -140,7 +142,7 @@ void menu_Cliente(Cliente clientes[], int clienteIndex) {
                 break;
             case 2:
                 terminal_Clear(0);
-                //realizarDeposito(clientes, clienteIndex);
+                depositar(clientes, clienteIndex);
                 break;
             case 3:
                 terminal_Clear(0);
@@ -287,4 +289,38 @@ void transferir(Cliente clientes[], int quantidade, int clienteIndex) {
     printf("Transferência realizada com sucesso!\n");
     printf("Novo saldo: R$ %.2f\n", clientes[clienteIndex].saldo);
     printf("Novo saldo do destinatário: R$ %.2f\n", clientes[destinoIndex].saldo);
+}
+
+void depositar(Cliente clientes[], int clienteIndex) {
+    float valor;
+   
+    printf("Digite o valor a ser depositado: R$ ");
+    scanf("%f", &valor);
+   
+    if (valor > 0) {
+        clientes[clienteIndex].saldo += valor;  
+        printf("Depósito realizado com sucesso! Novo saldo: R$ %.2f\n", clientes[clienteIndex].saldo);
+    } else {
+        printf("Erro: O valor do depósito deve ser positivo!\n");
+    }
+}
+
+void removerConta(Cliente clientes[], int numClientes) {
+    char cpf[15];
+    printf("Digite o CPF do cliente para remover a conta: ");
+    fgets(cpf, sizeof(cpf), stdin);
+    cpf[strcspn(cpf, "\n")] = 0;  // Remover a quebra de linha
+
+    for (int i = 0; i < numClientes; i++) {
+        if (strcmp(clientes[i].cpf, cpf) == 0) {
+            // Remover cliente movendo os demais para a esquerda
+            for (int j = i; j < numClientes - 1; j++) {
+                clientes[j] = clientes[j + 1];
+            }
+            numClientes--;  // Atualiza o número de clientes
+            printf("Conta removida com sucesso!\n");
+            return;
+        }
+    }
+    printf("Cliente não encontrado!\n");
 }
