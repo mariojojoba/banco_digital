@@ -4,7 +4,6 @@
 #include <unistd.h>   // Biblioteca para manipulação de chamadas do sistema Unix (Mac e Linux), como sleep().
 #include <string.h>   // Biblioteca para manipulação de strings, com funções como strlen(), strcpy(), strcat(), etc.
 
-// Variavéis Globais de Controle de Array
 #define NCLIENTES 999
 #define NTRANS 999
 
@@ -25,9 +24,11 @@ typedef struct {
     char senha[20];
 } Administrador;
 
-// Declaração das funções no inicio
+// Funções
 void terminal_Clear();
-int  login_Cliente(Cliente clientes[], int numClientes);
+int cadastrar_Cliente(Cliente clientes[], int numClientes);
+void ativar_Conta_Cliente(Cliente clientes[], int numClientes);
+int login_Cliente(Cliente clientes[], int numClientes);
 void menu_Cliente(Cliente clientes[], int clienteIndex);
 void consultar_Saldo_Extrato(Cliente clientes[], int clienteIndex);
 void ver_Clientes(Cliente clientes[], int numClientes);
@@ -36,9 +37,12 @@ void sacar(Cliente clientes[], int quantidade, int clienteIndex);
 void transferir(Cliente clientes[], int quantidade, int clienteIndex);
 void depositar(Cliente clientes[], int clienteIndex);
 void remover_Conta(Cliente clientes[], int numClientes);
+void entrar_Conta_Administrador(Administrador *adm, Cliente clientes[], int numClientes);
 
 int main() {
     setlocale(LC_ALL, "Portuguese");
+
+    Administrador adm = {"Pedro Monteiro", "senha990"};
 
     Cliente clientes[NCLIENTES] = {
         {"João Silva", "12345678901", "senha123", 1000.50, "Nenhuma", 1, 1}, // Ativa e desbloquada
@@ -63,25 +67,26 @@ int main() {
 
         switch (opcao) {
             case 1:
-                terminal_Clear();
+                sleep(0.7);terminal_Clear();
                 int clienteIndex = login_Cliente(clientes, numClientes);
                 if (clienteIndex != -1) {
                     menu_Cliente(clientes, clienteIndex);
                 }
                 break;
             case 2:
-                terminal_Clear();
-                printf("Função criarContaCliente() ainda não implementada.\n");
+                sleep(0.7);terminal_Clear();
+                numClientes = cadastrar_Cliente(clientes, numClientes);
                 break;
             case 3:
-                terminal_Clear();
-                printf("Função adminLogin() ainda não implementada.\n");
+                sleep(0.7);terminal_Clear();
+                entrar_Conta_Administrador(&adm, clientes, numClientes);
                 break;
             case 4:
+                sleep(0.7);terminal_Clear();
                 printf("Saindo...\n");
                 break;
             default:
-                terminal_Clear();
+                sleep(0.7);terminal_Clear();
                 printf("Opção inválida! Tente novamente.\n");
         }
     } while (opcao != 4);
@@ -89,42 +94,98 @@ int main() {
     return 0;
 }
 
+// Função para limpar a tela
 void terminal_Clear() {
     sleep(0.7);
     #ifdef _WIN32
         system("cls");
     #else
-        printf("\033[H\033[J");
+        system("clear");
     #endif
 }
 
+// Função para cadastrar um cliente
+int cadastrar_Cliente(Cliente clientes[], int numClientes) {
+    if (numClientes >= NCLIENTES) {
+        printf("Limite de clientes atingido.\n");
+        return numClientes;
+    }
+    while (getchar() != '\n'); // Limpa buffer
+
+    char nome[50], cpf[12], senha[15];
+    printf("Digite o nome do cliente: ");
+    scanf("%49s", nome);
+    while (getchar() != '\n');
+
+    printf("Digite seu CPF: ");
+    scanf("%11s", cpf);
+    while (getchar() != '\n');
+
+    printf("Digite a senha do cliente: ");
+    scanf("%14s", senha);
+    while (getchar() != '\n');
+
+    Cliente novoCliente;
+    strcpy(novoCliente.nome, nome);
+    strcpy(novoCliente.cpf, cpf);
+    strcpy(novoCliente.senha, senha);
+    novoCliente.saldo = 0.00;
+    strcpy(novoCliente.transacoes, "Nenhuma");
+    novoCliente.contaAtiva = 0;
+    novoCliente.bloqueada = 1;
+
+    clientes[numClientes] = novoCliente;
+    printf("Cliente cadastrado com sucesso!\n");
+    return numClientes + 1;
+}
+
+// Função para ativar conta de cliente
+void ativar_Conta_Cliente(Cliente clientes[], int numClientes) {
+    char senha[12];
+    printf("Digite a CPF do cliente para ativar a conta: ");
+    scanf("%11s", senha);
+    while (getchar() != '\n');
+
+    for (int i = 0; i < numClientes; i++) {
+        if (strcmp(clientes[i].cpf, senha) == 0) {
+            clientes[i].contaAtiva = 1;
+            printf("Conta de %s ativada com sucesso!\n", clientes[i].nome);
+            return;
+        }
+    }
+    terminal_Clear();
+    printf("Cliente não encontrado ou não existe!\n");
+}
+
+// Função de login do cliente
 int login_Cliente(Cliente clientes[], int numClientes) {
     char cpf[12], senha[15];
 
-    // Limpeza do buffer de entrada
     while (getchar() != '\n'); // Limpa qualquer caractere residual do buffer
 
     printf("Digite seu CPF: ");
-    scanf("%11s", cpf);  // Limita a leitura para 11 caracteres
-    getchar();  // Consome o \n que ficou no buffer
+    fgets(cpf, sizeof(cpf), stdin);
+    cpf[strcspn(cpf, "\n")] = 0;  // Remove a quebra de linha se houver
 
     printf("Digite sua senha: ");
-    scanf("%14s", senha);  // Limita a leitura para 14 caracteres
-    getchar();  // Consome o \n que ficou no buffer
+    fgets(senha, sizeof(senha), stdin);
+    senha[strcspn(senha, "\n")] = 0;  // Remove a quebra de linha se houver
 
-    // Verifica o login do cliente
     for (int i = 0; i < numClientes; i++) {
         if (strcmp(clientes[i].cpf, cpf) == 0 && strcmp(clientes[i].senha, senha) == 0) {
-            if (clientes[i].contaAtiva == 0) {
-                sleep(0.7);terminal_Clear();
+            if (!clientes[i].contaAtiva) {
+                sleep(1);  // Aguarda 1 segundo
+                terminal_Clear();  // Limpa a tela
                 printf("Conta desativada! Entre em contato com o administrador para reativá-la.\n");
                 return -1;  // Conta desativada
-            } else if (clientes[i].bloqueada == 0) {
-                sleep(0.7);terminal_Clear();
+            } else if (!clientes[i].bloqueada) {
+                sleep(1);  // Aguarda 1 segundo
+                terminal_Clear();  // Limpa a tela
                 printf("Conta bloqueada! Entre em contato com o administrador para desbloqueá-la.\n");
                 return -1;  // Conta bloqueada
             } else {
-                sleep(0.7);terminal_Clear();
+                sleep(1);  // Aguarda 1 segundo
+                terminal_Clear();  // Limpa a tela
                 printf("Bem-vindo, %s! Login realizado com sucesso!\n", clientes[i].nome);
                 return i;  // Retorna o índice do cliente no array
             }
@@ -135,6 +196,7 @@ int login_Cliente(Cliente clientes[], int numClientes) {
     return -1;  // CPF ou senha incorretos
 }
 
+// Função para o menu do cliente
 void menu_Cliente(Cliente clientes[], int clienteIndex) {
     int opcao;
     do {
@@ -165,7 +227,7 @@ void menu_Cliente(Cliente clientes[], int clienteIndex) {
                 transferir(clientes, NCLIENTES, clienteIndex);
                 break;  
             case 5:
-                sleep(0.7);terminal_Clear();
+                sleep(0.7); terminal_Clear();
                 printf("Saindo...\n");
                 break;
             default:
@@ -175,6 +237,7 @@ void menu_Cliente(Cliente clientes[], int clienteIndex) {
     } while (opcao != 5);
 }
 
+// Função para consultar saldo e extrato
 void consultar_Saldo_Extrato(Cliente clientes[], int clienteIndex) {
     printf("\n------------- Saldo e Extrato -------------\n");
     printf("Nome: %s\n", clientes[clienteIndex].nome);
@@ -211,7 +274,8 @@ void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int 
     }
     printf("\n------------- Contas desbloqueadas -------------\n");
     for (int i = 0; i < quantidade; i++) {
-        if (!clientes[i].bloqueada) {
+        // Verifica se a conta não está bloqueada e se o nome e o CPF não estão vazios
+        if (!clientes[i].bloqueada && (strlen(clientes[i].nome) > 0 && strlen(clientes[i].cpf) > 0)) {
             printf("Nome: %s | CPF: %s\n", clientes[i].nome, clientes[i].cpf);
         }
     }
@@ -413,4 +477,70 @@ void remover_Conta(Cliente clientes[], int numClientes) {
         }
     }
     printf("Cliente não encontrado!\n");
+}
+
+void entrar_Conta_Administrador(Administrador *adm, Cliente clientes[], int numClientes) {
+    char usuario[50], senha[15];
+    printf("Digite o nome de usuário: ");
+    scanf(" %[^\n]", usuario);  // Leitura do nome com espaços
+    while (getchar() != '\n');   // Limpa o buffer
+
+    printf("Digite a senha: ");
+    scanf("%14s", senha);        // Leitura da senha
+    while (getchar() != '\n');   // Limpa o buffer
+
+    terminal_Clear();
+
+    // Adicionando printf para depuração
+    printf("Usuário digitado: %s\n", usuario); 
+    printf("Senha digitada: %s\n", senha);
+
+    if (strcmp(usuario, adm->usuario) == 0 && strcmp(senha, adm->senha) == 0) {
+        sleep(0.7);terminal_Clear();
+        printf("Login bem-sucedido!\n");
+        int opcao;
+        do {
+            printf("Olá, %s, bem-vindo!\n---------- Menu do Administrador ----------\n", usuario);
+            printf("1. Ativar conta do cliente\n2. Exibir contas\n3. Desbloquear conta de cliente\n4. Bloquear conta de cliente\n5. Remover conta\n6. Sair do Administrador\nEscolha uma opção: ");
+            
+            if (scanf("%d", &opcao) != 1) {
+                terminal_Clear();
+                printf("\nEntrada inválida! Digite um número.\n");
+                while (getchar() != '\n');
+                continue;
+            }
+
+            switch(opcao) {
+                case 1:
+                    sleep(0.7); terminal_Clear();
+                    ativar_Conta_Cliente(clientes, numClientes);
+                    break;
+                case 2:
+                    sleep(0.7); terminal_Clear();
+                    ver_Clientes(clientes, numClientes);
+                    break;
+                case 3:
+                    sleep(0.7); terminal_Clear();
+                    bloqueio_e_Desbloqueio_de_Clientes(clientes, NCLIENTES, 0);
+                    break;
+                case 4:
+                    sleep(0.7); terminal_Clear();
+                    bloqueio_e_Desbloqueio_de_Clientes(clientes, NCLIENTES, 1);
+                    break;
+                case 5:
+                    sleep(0.7); terminal_Clear();
+                    remover_Conta(clientes, NCLIENTES);
+                    break;
+                case 6:
+                    sleep(0.7); terminal_Clear();
+                    printf("Saindo...\n");
+                    break;
+                default:
+                    sleep(0.7); terminal_Clear();
+                    printf("Opção inválida! Tente novamente.\n");
+            }
+        } while (opcao != 6);
+    } else {
+        printf("Nome ou/e senha incorretos!\n");
+    }
 }
