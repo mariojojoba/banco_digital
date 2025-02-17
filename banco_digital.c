@@ -142,7 +142,7 @@ int cadastrar_Cliente(Cliente clientes[], int numClientes) {
 // Função para ativar conta de cliente
 void ativar_Conta_Cliente(Cliente clientes[], int numClientes) {
     char senha[12];
-    printf("Digite a CPF do cliente para ativar a conta: ");
+    printf("----------------- Ativar Conta de Cliente -----------------\nDigite a CPF do cliente para ativar a conta: ");
     scanf("%11s", senha);
     while (getchar() != '\n');
 
