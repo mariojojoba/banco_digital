@@ -26,9 +26,9 @@ typedef struct {
 
 // Funções
 void terminal_Clear();
-int cadastrar_Cliente(Cliente clientes[], int numClientes);
+int  cadastrar_Cliente(Cliente clientes[], int numClientes);
 void ativar_Conta_Cliente(Cliente clientes[], int numClientes);
-int login_Cliente(Cliente clientes[], int numClientes);
+int  login_Cliente(Cliente clientes[], int numClientes);
 void menu_Cliente(Cliente clientes[], int clienteIndex);
 void consultar_Saldo_Extrato(Cliente clientes[], int clienteIndex);
 void ver_Clientes(Cliente clientes[], int numClientes);
@@ -36,7 +36,7 @@ void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int 
 void sacar(Cliente clientes[], int quantidade, int clienteIndex);
 void transferir(Cliente clientes[], int quantidade, int clienteIndex);
 void depositar(Cliente clientes[], int clienteIndex);
-void remover_Conta(Cliente clientes[], int numClientes);
+int  remover_Conta(Cliente clientes[], int numClientes, const char cpf[]);
 void entrar_Conta_Administrador(Administrador *adm, Cliente clientes[], int numClientes);
 
 int main() {
@@ -260,28 +260,20 @@ void ver_Clientes(Cliente clientes[], int numClientes) {
         printf("Saldo: R$ %.2f\n", clientes[i].saldo);
         printf("Conta Ativa: %s\n", clientes[i].contaAtiva ? "Sim" : "Não");
         printf("Conta Bloqueada: %s\n", clientes[i].bloqueada ? "Sim" : "Não");
-        printf("\n------------------------------------------\n");
     }
 }
 
 void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int n) {
     char entrada[50];
-    printf("------------- Contas bloqueadas -------------\n");
-    for (int i = 0; i < quantidade; i++) {
-        if (clientes[i].bloqueada) {
-            printf("Nome: %s | CPF: %s\n", clientes[i].nome, clientes[i].cpf);
-        }
-    }
-    printf("\n------------- Contas desbloqueadas -------------\n");
-    for (int i = 0; i < quantidade; i++) {
-        // Verifica se a conta não está bloqueada e se o nome e o CPF não estão vazios
-        if (!clientes[i].bloqueada && (strlen(clientes[i].nome) > 0 && strlen(clientes[i].cpf) > 0)) {
-            printf("Nome: %s | CPF: %s\n", clientes[i].nome, clientes[i].cpf);
-        }
-    }
     
     if (n == 0) {
-        printf("Digite o nome ou CPF da conta para desbloquear: ");
+        printf("------------- Contas bloqueadas -------------\n");
+        for (int i = 0; i < quantidade; i++) {
+            if (clientes[i].bloqueada) {
+                printf("Nome: %s | CPF: %s\n", clientes[i].nome, clientes[i].cpf);
+            }
+        }
+        printf("\nDigite o nome ou CPF da conta para desbloquear: ");
         scanf("%s", entrada);
         for (int i = 0; i < quantidade; i++) {
             if (strcmp(clientes[i].nome, entrada) == 0 || strcmp(clientes[i].cpf, entrada) == 0) {
@@ -292,6 +284,13 @@ void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int 
         }
         printf("Conta não encontrada.\n");
     } else {
+        printf("\n------------- Contas desbloqueadas -------------\n");
+        for (int i = 0; i < quantidade; i++) {
+            // Verifica se a conta não está bloqueada e se o nome e o CPF não estão vazios
+            if (!clientes[i].bloqueada && (strlen(clientes[i].nome) > 0 && strlen(clientes[i].cpf) > 0)) {
+                printf("Nome: %s | CPF: %s\n", clientes[i].nome, clientes[i].cpf);
+            }
+        }
         printf("\nDigite o nome ou CPF da conta para bloquear: ");
         scanf("%s", entrada);
         for (int i = 0; i < quantidade; i++) {
@@ -459,11 +458,15 @@ void depositar(Cliente clientes[], int clienteIndex) {
     }
 }
 
-void remover_Conta(Cliente clientes[], int numClientes) {
-    char cpf[15];
-    printf("Digite o CPF do cliente para remover a conta: ");
-    fgets(cpf, sizeof(cpf), stdin);
-    cpf[strcspn(cpf, "\n")] = 0;  // Remover a quebra de linha
+int remover_Conta(Cliente clientes[], int numClientes, const char cpf[]) {
+    // O CPF é agora um parâmetro passado diretamente para a função
+    printf("CPF para remover a conta: %s\n", cpf);
+
+    // Verifica se o CPF não é vazio
+    if (strlen(cpf) == 0) {
+        printf("CPF inválido! Tente novamente.\n");
+        return numClientes;  // Retorna o número de clientes sem alteração
+    }
 
     for (int i = 0; i < numClientes; i++) {
         if (strcmp(clientes[i].cpf, cpf) == 0) {
@@ -473,10 +476,11 @@ void remover_Conta(Cliente clientes[], int numClientes) {
             }
             numClientes--;  // Atualiza o número de clientes
             printf("Conta removida com sucesso!\n");
-            return;
+            return numClientes;  // Retorna o novo número de clientes
         }
     }
     printf("Cliente não encontrado!\n");
+    return numClientes;  // Retorna o número de clientes sem alteração
 }
 
 void entrar_Conta_Administrador(Administrador *adm, Cliente clientes[], int numClientes) {
@@ -497,10 +501,9 @@ void entrar_Conta_Administrador(Administrador *adm, Cliente clientes[], int numC
 
     if (strcmp(usuario, adm->usuario) == 0 && strcmp(senha, adm->senha) == 0) {
         sleep(0.7);terminal_Clear();
-        printf("Login bem-sucedido!\n");
         int opcao;
         do {
-            printf("Olá, %s, bem-vindo!\n---------- Menu do Administrador ----------\n", usuario);
+            printf("Olá, %s, bem-vindo!\n---------- Menu do Administrador ----------\n\n", usuario);
             printf("1. Ativar conta do cliente\n2. Exibir contas\n3. Desbloquear conta de cliente\n4. Bloquear conta de cliente\n5. Remover conta\n6. Sair do Administrador\nEscolha uma opção: ");
             
             if (scanf("%d", &opcao) != 1) {
@@ -528,8 +531,13 @@ void entrar_Conta_Administrador(Administrador *adm, Cliente clientes[], int numC
                     bloqueio_e_Desbloqueio_de_Clientes(clientes, NCLIENTES, 1);
                     break;
                 case 5:
-                    sleep(0.7); terminal_Clear();
-                    remover_Conta(clientes, NCLIENTES);
+                    sleep(0.7);terminal_Clear();
+                    char cpf[15];
+                    printf("Digite o CPF do cliente para remover a conta: ");
+                    scanf("%14s", cpf);
+                    sleep(0.7); 
+                    terminal_Clear();
+                    numClientes = remover_Conta(clientes, numClientes, cpf);
                     break;
                 case 6:
                     sleep(0.7); terminal_Clear();
@@ -544,3 +552,4 @@ void entrar_Conta_Administrador(Administrador *adm, Cliente clientes[], int numC
         printf("Nome ou/e senha incorretos!\n");
     }
 }
+
