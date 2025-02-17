@@ -53,7 +53,7 @@ int main() {
     };
 
     int opcao;
-    int numClientes = 5;
+    int numClientes = 10;
     do {
         printf("\n---------- Bem-vindo ao Banco Digital ----------\n");
         printf("1. Login como Cliente\n2. Criar Conta\n3. Login como ADM\n4. Sair\nEscolha uma opção: ");
@@ -105,26 +105,45 @@ void terminal_Clear() {
 }
 
 // Função para cadastrar um cliente
+// Função para cadastrar um cliente
 int cadastrar_Cliente(Cliente clientes[], int numClientes) {
     if (numClientes >= NCLIENTES) {
         printf("Limite de clientes atingido.\n");
         return numClientes;
     }
-    while (getchar() != '\n'); // Limpa buffer
+
+    // Limpa o buffer
+    while (getchar() != '\n');
 
     char nome[50], cpf[12], senha[15];
+
+    // Solicita o nome do cliente
     printf("Digite o nome do cliente: ");
-    scanf("%49s", nome);
-    while (getchar() != '\n');
+    scanf("%49[^\n]", nome);  // Lê o nome até o final da linha
+    getchar();  // Limpa o \n que fica no buffer após o scanf
 
+    // Solicita o CPF
     printf("Digite seu CPF: ");
-    scanf("%11s", cpf);
-    while (getchar() != '\n');
+    scanf("%11s", cpf);  // Lê até 11 caracteres, sem considerar espaços
 
+    // Validação básica de CPF
+    if (strlen(cpf) != 11) {
+        printf("CPF inválido. Deve ter 11 dígitos.\n");
+        return numClientes;
+    }
+
+    // Solicita a senha
     printf("Digite a senha do cliente: ");
-    scanf("%14s", senha);
-    while (getchar() != '\n');
+    scanf("%14s", senha);  // Lê até 14 caracteres
 
+
+    // Valida a senha
+    if (strlen(senha) < 6) {
+        printf("Senha muito curta! A senha deve ter no mínimo 6 caracteres.\n");
+        return numClientes;
+    }
+
+    // Criação do novo cliente
     Cliente novoCliente;
     strcpy(novoCliente.nome, nome);
     strcpy(novoCliente.cpf, cpf);
@@ -134,8 +153,14 @@ int cadastrar_Cliente(Cliente clientes[], int numClientes) {
     novoCliente.contaAtiva = 0;
     novoCliente.bloqueada = 1;
 
+    // Adiciona o novo cliente à lista de clientes
     clientes[numClientes] = novoCliente;
-    printf("Cliente cadastrado com sucesso!\n");
+    
+    sleep(0.7);terminal_Clear();
+
+    printf("\nCliente cadastrado com sucesso!\n");
+
+    // Retorna o novo número de clientes
     return numClientes + 1;
 }
 
@@ -156,7 +181,6 @@ void ativar_Conta_Cliente(Cliente clientes[], int numClientes) {
     terminal_Clear();
     printf("Cliente não encontrado ou não existe!\n");
 }
-
 // Função de login do cliente
 int login_Cliente(Cliente clientes[], int numClientes) {
     char cpf[12], senha[15];
