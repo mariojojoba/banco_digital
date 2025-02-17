@@ -27,7 +27,7 @@ typedef struct {
 // Funções
 void terminal_Clear();
 int  cadastrar_Cliente(Cliente clientes[], int numClientes);
-void ativar_Conta_Cliente(Cliente clientes[], int numClientes);
+void ativar_Conta_Cliente(Cliente clientes[], int numClientes, int quantidade);
 int  login_Cliente(Cliente clientes[], int numClientes);
 void menu_Cliente(Cliente clientes[], int clienteIndex);
 void consultar_Saldo_Extrato(Cliente clientes[], int clienteIndex);
@@ -45,11 +45,11 @@ int main() {
     Administrador adm = {"Pedro Monteiro", "senha990"};
 
     Cliente clientes[NCLIENTES] = {
-        {"João Silva", "12345678901", "senha123", 1000.50, "Nenhuma", 1, 1}, // Ativa e desbloquada
-        {"Maria Oliveira", "98765432100", "senha456", 2500.00, "Nenhuma", 0, 1}, // Não Ativada e desbloqueaada
-        {"Carlos Souza", "11223344556", "senha789", 0.00, "Nenhuma", 0, 0}, // Não Ativada e bloqueaada
-        {"Ana Pereira", "22334455667", "senha321", 500.75, "Nenhuma", 1, 0}, // Ativa e bloqueada
-        {"Lucas Costa", "99887766554", "senha654", 100.25, "Nenhuma", 1, 1} 
+        {"João Silva", "12345678901", "senha123", 1000.50, "Nenhuma", 0, 0}, // Ativa e desbloquada
+        {"Maria Oliveira", "98765432100", "senha456", 2500.00, "Nenhuma", 0, 1}, // Ativada e bloqueaada
+        {"Carlos Souza", "11223344556", "senha789", 0.00, "Nenhuma", 0, 0}, 
+        {"Ana Pereira", "22334455667", "senha321", 500.75, "Nenhuma", 1, 0},
+        {"Lucas Costa", "99887766554", "senha654", 100.25, "Nenhuma", 1, 1} // Não Ativa e Bloqueada
     };
 
     int opcao;
@@ -165,9 +165,16 @@ int cadastrar_Cliente(Cliente clientes[], int numClientes) {
 }
 
 // Função para ativar conta de cliente
-void ativar_Conta_Cliente(Cliente clientes[], int numClientes) {
+void ativar_Conta_Cliente(Cliente clientes[], int numClientes,int quantidade) {
     char senha[12];
-    printf("----------------- Ativar Conta de Cliente -----------------\nDigite a CPF do cliente para ativar a conta: ");
+    printf("------------- Contas Inativas -------------\n");
+    for (int i = 0; i < quantidade; i++) {
+        if (clientes[i].contaAtiva == 1 && clientes[i].nome[0] != '\0') {  
+            printf("Nome: %s | CPF: %s\n", clientes[i].nome, clientes[i].cpf);
+        }
+    }
+
+    printf("\nDigite a CPF do cliente para ativar a conta: ");
     scanf("%11s", senha);
     while (getchar() != '\n');
 
@@ -293,7 +300,7 @@ void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int 
     if (n == 0) {
         printf("------------- Contas bloqueadas -------------\n");
         for (int i = 0; i < quantidade; i++) {
-            if (clientes[i].bloqueada) {
+            if ((clientes[i].bloqueada)==1) {
                 printf("Nome: %s | CPF: %s\n", clientes[i].nome, clientes[i].cpf);
             }
         }
@@ -540,7 +547,7 @@ void entrar_Conta_Administrador(Administrador *adm, Cliente clientes[], int numC
             switch(opcao) {
                 case 1:
                     sleep(0.7); terminal_Clear();
-                    ativar_Conta_Cliente(clientes, numClientes);
+                    ativar_Conta_Cliente(clientes, numClientes,NCLIENTES);
                     break;
                 case 2:
                     sleep(0.7); terminal_Clear();
@@ -576,4 +583,3 @@ void entrar_Conta_Administrador(Administrador *adm, Cliente clientes[], int numC
         printf("Nome ou/e senha incorretos!\n");
     }
 }
-
