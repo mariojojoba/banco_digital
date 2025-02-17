@@ -1,7 +1,7 @@
 ## Estrutura de Diretórios
 
-- **Códigos/**: Contém todas as versões do código. Cada versão é armazenada em uma pasta separada.
-- **main/**: Pasta que contém o código atual em desenvolvimento. Este é o código mais recente e funcional do sistema.
+- **Códigos/**: Contém todas as versões do código. 
+- **main/**: Pasta que contém o código atual em desenvolvimento. 
 
 ## Sobre o Código
 
