@@ -11,5 +11,5 @@
 ## Como Usar
 
 1. Navegue até a pasta **main/** para acessar o código mais recente.
-2. Abra o arquivo `main.c` para visualizar o código.
+2. Abra o arquivo `banco_digital.c` para visualizar o código.
 3. Para rodar o sistema, utilize um compilador C de sua preferência (por exemplo, GCC) para compilar o código e gerar o executável.
