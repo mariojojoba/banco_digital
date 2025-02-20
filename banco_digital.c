@@ -150,8 +150,8 @@ int cadastrar_Cliente(Cliente clientes[], int numClientes) {
     strcpy(novoCliente.senha, senha);
     novoCliente.saldo = 0.00;
     strcpy(novoCliente.transacoes, "Nenhuma");
-    novoCliente.contaAtiva = 0;
-    novoCliente.bloqueada = 1;
+    novoCliente.contaAtiva = 1;
+    novoCliente.bloqueada = 0;
 
     // Adiciona o novo cliente à lista de clientes
     clientes[numClientes] = novoCliente;
