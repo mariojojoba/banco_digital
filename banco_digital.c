@@ -105,7 +105,6 @@ void terminal_Clear() {
 }
 
 // Função para cadastrar um cliente
-// Função para cadastrar um cliente
 int cadastrar_Cliente(Cliente clientes[], int numClientes) {
     if (numClientes >= NCLIENTES) {
         printf("Limite de clientes atingido.\n");
@@ -169,7 +168,7 @@ void ativar_Conta_Cliente(Cliente clientes[], int numClientes,int quantidade) {
     char senha[12];
     printf("------------- Contas Inativas -------------\n");
     for (int i = 0; i < quantidade; i++) {
-        if (clientes[i].contaAtiva == 1 && clientes[i].nome[0] != '\0') {  
+        if (clientes[i].contaAtiva != 0 && clientes[i].nome[0] != '\0') {  
             printf("Nome: %s | CPF: %s\n", clientes[i].nome, clientes[i].cpf);
         }
     }
@@ -180,7 +179,7 @@ void ativar_Conta_Cliente(Cliente clientes[], int numClientes,int quantidade) {
 
     for (int i = 0; i < numClientes; i++) {
         if (strcmp(clientes[i].cpf, senha) == 0) {
-            clientes[i].contaAtiva = 1;
+            clientes[i].contaAtiva = 0;
             printf("Conta de %s ativada com sucesso!\n", clientes[i].nome);
             return;
         }
