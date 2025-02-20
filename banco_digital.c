@@ -193,23 +193,23 @@ int login_Cliente(Cliente clientes[], int numClientes) {
     char cpf[12], senha[15];
 
     while (getchar() != '\n'); // Limpa qualquer caractere residual do buffer
-
     printf("Digite seu CPF: ");
     fgets(cpf, sizeof(cpf), stdin);
     cpf[strcspn(cpf, "\n")] = 0;  // Remove a quebra de linha se houver
 
+    while (getchar() != '\n');
     printf("Digite sua senha: ");
     fgets(senha, sizeof(senha), stdin);
     senha[strcspn(senha, "\n")] = 0;  // Remove a quebra de linha se houver
 
     for (int i = 0; i < numClientes; i++) {
         if (strcmp(clientes[i].cpf, cpf) == 0 && strcmp(clientes[i].senha, senha) == 0) {
-            if (!clientes[i].contaAtiva) {
+            if (clientes[i].contaAtiva == 1) {
                 sleep(1);  // Aguarda 1 segundo
                 terminal_Clear();  // Limpa a tela
                 printf("Conta desativada! Entre em contato com o administrador para reativá-la.\n");
                 return -1;  // Conta desativada
-            } else if (!clientes[i].bloqueada) {
+            } else if (clientes[i].bloqueada==1) {
                 sleep(1);  // Aguarda 1 segundo
                 terminal_Clear();  // Limpa a tela
                 printf("Conta bloqueada! Entre em contato com o administrador para desbloqueá-la.\n");
@@ -318,7 +318,7 @@ void bloqueio_e_Desbloqueio_de_Clientes(Cliente clientes[], int quantidade, int 
         printf("\n------------- Contas desbloqueadas -------------\n");
         for (int i = 0; i < quantidade; i++) {
             // Verifica se a conta não está bloqueada e se o nome e o CPF não estão vazios
-            if (!clientes[i].bloqueada && (strlen(clientes[i].nome) > 0 && strlen(clientes[i].cpf) > 0)) {
+            if (clientes[i].bloqueada!=1 && (strlen(clientes[i].nome) > 0 && strlen(clientes[i].cpf) > 0)) {
                 printf("Nome: %s | CPF: %s\n", clientes[i].nome, clientes[i].cpf);
             }
         }
