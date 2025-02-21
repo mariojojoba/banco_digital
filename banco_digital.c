@@ -143,7 +143,7 @@ int cadastrar_Cliente(Cliente clientes[], int numClientes) {
     }
 
     for(int i = 0; i < NCLIENTES; i++){
-        if(strcmp(clientes[i].nome, nome) == 0 && strcmp(clientes[i].cpf, cpf) == 0 && strcmp(clientes[i].senha, senha) == 0){
+        if(strcmp(clientes[i].cpf, cpf) == 0 || strcmp(clientes[i].senha, senha) == 0){
             printf("Essa conta já existe!");
             return numClientes;
         }
