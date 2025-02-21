@@ -132,7 +132,7 @@ int cadastrar_Cliente(Cliente clientes[], int numClientes) {
     }
 
     // Solicita a senha
-    printf("Digite a senha do cliente: ");
+    printf("Digite a senha do cliente(deve ter 6 caracteres): ");
     scanf("%14s", senha);  // Lê até 14 caracteres
 
 
@@ -140,6 +140,13 @@ int cadastrar_Cliente(Cliente clientes[], int numClientes) {
     if (strlen(senha) < 6) {
         printf("Senha muito curta! A senha deve ter no mínimo 6 caracteres.\n");
         return numClientes;
+    }
+
+    for(int i = 0; i < NCLIENTES; i++){
+        if(strcmp(clientes[i].nome, nome) == 0 && strcmp(clientes[i].cpf, cpf) == 0 && strcmp(clientes[i].senha, senha) == 0){
+            printf("Essa conta já existe!");
+            return numClientes;
+        }
     }
 
     // Criação do novo cliente
